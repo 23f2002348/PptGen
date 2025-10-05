@@ -377,7 +377,7 @@ async function createPresentationWithTemplate(structure: PresentationStructure, 
 async function generatePresentationStructure(provider: 'gemini' | 'openai', apiKey: string, text: string, guidance: string): Promise<PresentationStructure> {
   const prompt = `Convert this text into a PowerPoint presentation. Respond with ONLY valid JSON.
 
-Text: "${text.substring(0, 4000)}"${text.length > 4000 ? '...' : ''}
+Text: "${text.substring(0, 8000)}"${text.length > 8000 ? '...' : ''}
 ${guidance ? `\nGuidance: "${guidance}"` : ''}
 
 Required JSON format:
@@ -389,7 +389,7 @@ Required JSON format:
 }
 
 Rules:
-- Create 6-12 slides based on content
+- Follow any guidance given in the contents.
 - First slide type must be "title"  
 - Use "bullets" for lists, "content" for paragraphs
 - Keep content concise and clear`;
@@ -407,10 +407,22 @@ Rules:
       });
       responseText = response.choices[0]?.message?.content || '';
     } else {
-      const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-      const result = await model.generateContent(prompt);
-      responseText = result.response.text();
+      const result = await fetch(
+  'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent',
+  {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }],
+    }),
+  }
+);
+
+const data = await result.json();
+responseText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
     }
     
     // Parse JSON response
