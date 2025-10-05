@@ -347,9 +347,9 @@ Rules:
       });
       responseText = response.choices[0]?.message?.content || '';
     } else {
-      // ✅ FIXED: Use API key as URL parameter, not Authorization header
+      // ✅ FIXED: Use correct v1beta endpoint with API key as URL parameter
       const result = await fetch(
-        `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
         {
           method: 'POST',
           headers: {
