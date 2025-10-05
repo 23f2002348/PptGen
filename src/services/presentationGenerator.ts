@@ -347,14 +347,13 @@ Rules:
       });
       responseText = response.choices[0]?.message?.content || '';
     } else {
-      // ✅ FIXED GEMINI CALL (Stable v1 endpoint)
+      // ✅ FIXED: Use API key as URL parameter, not Authorization header
       const result = await fetch(
-        'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent',
+        `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`,
           },
           body: JSON.stringify({
             contents: [{ parts: [{ text: prompt }] }],
@@ -363,7 +362,8 @@ Rules:
       );
 
       if (!result.ok) {
-        throw new Error(`Gemini API error: ${result.status} ${result.statusText}`);
+        const errorData = await result.json().catch(() => ({}));
+        throw new Error(`Gemini API error: ${result.status} ${errorData.error?.message || result.statusText}`);
       }
 
       const data = await result.json();
