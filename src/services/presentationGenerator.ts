@@ -347,7 +347,7 @@ Rules:
       });
       responseText = response.choices[0]?.message?.content || '';
     } else {
-      // ✅ FIXED: Use correct v1beta endpoint with API key as URL parameter
+      // ✅ FIXED: Use free tier model (gemini-2.0-flash-exp)
       const result = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
         {
